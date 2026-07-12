@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block meta_desc %}Housing Sales Analytics — Explore key factors driving residential property prices in King County, WA.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: var(--grad-hero);
+  z-index: -1;
+}
+.hero-orb-1 {
+  position: absolute;
+  width: 520px; height: 520px;
+  top: -100px; right: -100px;
+  background: radial-gradient(circle, hsla(212,95%,58%,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float1 12s ease-in-out infinite;
+}
+.hero-orb-2 {
+  position: absolute;
+  width: 380px; height: 380px;
+  bottom: -80px; left: -80px;
+  background: radial-gradient(circle, hsla(252,85%,68%,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float2 10s ease-in-out infinite;
+}
+.hero-orb-3 {
+  position: absolute;
+  width: 200px; height: 200px;
+  top: 40%; left: 45%;
+  background: radial-gradient(circle, hsla(170,85%,48%,0.07) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float1 8s ease-in-out infinite reverse;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+.hero-left { animation: fadeInUp 0.8s both; }
+.hero-right { animation: fadeInUp 0.8s 0.2s both; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.35rem 1rem;
+  background: hsla(212,95%,58%,0.1);
+  border: 1px solid hsla(212,95%,58%,0.22);
+  border-radius: 100px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--clr-accent);
+  letter-spacing: 0.07em; text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.hero-eyebrow .dot {
+  width: 7px; height: 7px;
+  background: var(--clr-accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.hero-title {
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 900;
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+.hero-title .grad-text {
+  background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-accent-2) 60%, var(--clr-accent-3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-desc {
+  color: var(--clr-text-2);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+  max-width: 500px;
+}
+
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+}
+.btn-hero-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.85rem 2rem;
+  background: var(--grad-accent);
+  color: white; font-weight: 700;
+  font-size: 0.95rem; font-family: 'Inter', sans-serif;
+  border-radius: var(--radius-md);
+  border: none; cursor: pointer;
+  box-shadow: 0 8px 32px hsla(212,95%,58%,0.4);
+  transition: var(--transition-bounce);
+  text-decoration: none;
+}
+.btn-hero-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 45px hsla(212,95%,58%,0.55);
+  color: white;
+}
+.btn-hero-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--clr-text-2); font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid var(--clr-border-2);
+  border-radius: var(--radius-md);
+  cursor: pointer; transition: var(--transition);
+  text-decoration: none;
+}
+.btn-hero-secondary:hover {
+  background: var(--clr-glass);
+  color: var(--clr-text);
+  border-color: var(--clr-accent);
+}
+
+.hero-stats {
+  display: flex; gap: 2.5rem; margin-top: 2.5rem;
+}
+.hero-stat-num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--clr-text); letter-spacing: -0.04em;
+}
+.hero-stat-label {
+  font-size: 0.78rem; color: var(--clr-text-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+/* Hero right panel — mini dashboard preview */
+.hero-panel {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+}
+.hero-mini-chart {
+  padding: 1.25rem 1.5rem;
+  min-height: 200px;
+}
+.hero-mini-kpis {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+.hero-mini-kpi {
+  padding: 1.1rem 1.25rem;
+  text-align: center;
+}
+.hero-mini-kpi .val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem; font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.hero-mini-kpi .lbl {
+  font-size: 0.72rem; color: var(--clr-text-3);
+  margin-top: 3px;
+}
+
+/* ── Feature Cards ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.feature-card {
+  padding: 1.75rem;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+}
+.feature-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grad-accent);
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: var(--radius-lg);
+  z-index: -1;
+}
+.feature-card:hover::after { opacity: 0.04; }
+.feature-card:hover { transform: translateY(-4px); }
+
+.feature-icon {
+  width: 52px; height: 52px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.1rem;
+}
+.feature-title { font-size: 1.05rem; margin-bottom: 0.6rem; }
+.feature-desc  { font-size: 0.875rem; color: var(--clr-text-2); line-height: 1.65; }
+.feature-link  {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 1rem; font-size: 0.85rem; font-weight: 600;
+  color: var(--clr-accent); transition: var(--transition);
+}
+.feature-card:hover .feature-link { gap: 9px; }
+
+/* ── Variables Section ── */
+.vars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.var-pill {
+  display: flex; align-items: center; gap: 12px;
+  padding: 1rem 1.25rem;
+  background: var(--clr-glass);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+.var-pill:hover {
+  border-color: var(--clr-border-2);
+  transform: translateY(-2px);
+}
+.var-pill .var-icon { font-size: 1.4rem; }
+.var-pill .var-name { font-size: 0.88rem; font-weight: 600; }
+.var-pill .var-type { font-size: 0.72rem; color: var(--clr-text-3); margin-top: 1px; }
+
+@media (max-width: 900px) {
+  .hero-content   { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-right     { display: none; }
+  .features-grid  { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero-stats { gap: 1.5rem; }
+  .hero-mini-kpis { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero" aria-label="Hero section">
+  <div class="hero-bg"></div>
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-orb-3"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-eyebrow">
+          <span class="dot"></span>
+          King County · 2014–2015
+        </div>
+        <h1 class="hero-title">
+          Uncover What Drives<br/>
+          <span class="grad-text">Housing Prices</span>
+        </h1>
+        <p class="hero-desc">
+          An interactive analytics platform exploring how renovations, age, bedrooms, bathrooms, and floors influence residential property values in King County, WA.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ url_for('dashboard') }}" class="btn-hero-primary" id="hero-explore-btn">
+            📊 Explore Dashboard
+          </a>
+          <a href="{{ url_for('storyboard') }}" class="btn-hero-secondary" id="hero-story-btn">
+            📖 View Storyboard
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-num">21,588</div>
+            <div class="hero-stat-label">Properties</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">7</div>
+            <div class="hero-stat-label">Visualizations</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">{{ kpis.get('pct_renovated', 4.2) }}%</div>
+            <div class="hero-stat-label">Renovated</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-panel">
+          <div class="glass-card hero-mini-chart">
+            <div style="font-size:0.78rem;color:var(--clr-text-3);margin-bottom:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">↗ Avg Price by Renovation</div>
+            <div id="heroMiniChart" style="height:155px;"></div>
+          </div>
+          <div class="hero-mini-kpis">
+            <div class="glass-card hero-mini-kpi">
+              <div class="val" style="color:var(--clr-accent)">
+                ${{ "{:,.0f}".format(kpis.get('avg_price', 538384) / 1000) }}K
+              </div>
+              <div class="lbl">Avg Price</div>
+            </div>
+            <div class="glass-card hero-mini-kpi">
+              <div class="val" style="color:var(--clr-accent-3)">
+                +{{ kpis.get('renovation_price_premium_pct', 41) }}%
+              </div>
+              <div class="lbl">Reno Premium</div>
+            </div>
+            <div class="glass-card hero-mini-kpi">
+              <div class="val" style="color:var(--clr-accent-2)">
+                ${{ "{:,.0f}".format(kpis.get('avg_price_per_sqft', 264)) }}
+              </div>
+              <div class="lbl">Avg $/SqFt</div>
+            </div>
+            <div class="glass-card hero-mini-kpi">
+              <div class="val" style="color:var(--clr-gold)">
+                {{ kpis.get('avg_house_age', 44) }} yrs
+              </div>
+              <div class="lbl">Avg Age</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── KPI CARDS ── -->
+<section class="section-sm" aria-label="Key metrics">
+  <div class="container">
+    <div class="kpi-grid animate-fade-up">
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-blue">🏠</div>
+        <div class="kpi-value">{{ "{:,}".format(kpis.get('total_records', 21588)) }}</div>
+        <div class="kpi-label">Total Properties</div>
+        <div class="kpi-change up">▲ King County, WA</div>
+      </div>
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-green">💰</div>
+        <div class="kpi-value">${{ "{:,.0f}".format(kpis.get('avg_price', 538384) / 1000) }}K</div>
+        <div class="kpi-label">Avg Sale Price</div>
+        <div class="kpi-change up">▲ Median ${{ "{:,.0f}".format(kpis.get('median_price', 450000) / 1000) }}K</div>
+      </div>
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-gold">🔨</div>
+        <div class="kpi-value">+{{ kpis.get('renovation_price_premium_pct', 41) }}%</div>
+        <div class="kpi-label">Renovation Premium</div>
+        <div class="kpi-change up">▲ vs Never Renovated</div>
+      </div>
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-purple">📅</div>
+        <div class="kpi-value">{{ kpis.get('avg_house_age', 44) }} yrs</div>
+        <div class="kpi-label">Avg House Age</div>
+        <div class="kpi-change">Built: 1900–2014</div>
+      </div>
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-rose">📐</div>
+        <div class="kpi-value">${{ "{:,.0f}".format(kpis.get('avg_price_per_sqft', 264)) }}</div>
+        <div class="kpi-label">Avg Price / SqFt</div>
+        <div class="kpi-change">Calculated Field</div>
+      </div>
+      <div class="glass-card kpi-card">
+        <div class="kpi-icon icon-green">🔧</div>
+        <div class="kpi-value">{{ kpis.get('pct_renovated', 4.2) }}%</div>
+        <div class="kpi-label">Properties Renovated</div>
+        <div class="kpi-change up">▲ Premium segment</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURE CARDS ── -->
+<section class="section" aria-label="Project features">
+  <div class="container">
+    <div class="animate-fade-up">
+      <span class="section-badge">📦 Project Modules</span>
+      <h2 class="section-title">Everything You Need to <span class="highlight">Understand the Market</span></h2>
+      <p class="section-subtitle">From raw data to actionable insights — explore our full analytics suite.</p>
+    </div>
+    <div class="features-grid animate-fade-up animate-fade-up-2">
+      <div class="glass-card feature-card">
+        <div class="feature-icon icon-blue">📊</div>
+        <h3 class="feature-title">Interactive Dashboard</h3>
+        <p class="feature-desc">7 live charts with real-time filters for renovation status, bedrooms, price range, and year built. See how every variable impacts price.</p>
+        <a href="{{ url_for('dashboard') }}" class="feature-link" id="feat-dashboard-link">Open Dashboard →</a>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon icon-purple">📖</div>
+        <h3 class="feature-title">Visual Storyboard</h3>
+        <p class="feature-desc">5-chapter narrative journey through the data — from market landscape to actionable recommendations for buyers, sellers, and analysts.</p>
+        <a href="{{ url_for('storyboard') }}" class="feature-link" id="feat-story-link">View Storyboard →</a>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon icon-gold">🔷</div>
+        <h3 class="feature-title">Tableau Integration</h3>
+        <p class="feature-desc">Direct Tableau embedding page with the Embedding API v3. Paste your Tableau Public URL to render live interactive dashboards.</p>
+        <a href="{{ url_for('tableau') }}" class="feature-link" id="feat-tableau-link">Embed Tableau →</a>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon icon-green">🧮</div>
+        <h3 class="feature-title">7 Calculated Fields</h3>
+        <p class="feature-desc">House Age, Years Since Renovation, Renovation Status, Price/SqFt, Age Category, Bathroom Category, and Bedroom Category.</p>
+        <a href="{{ url_for('about') }}" class="feature-link" id="feat-fields-link">View Methodology →</a>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon icon-rose">🎯</div>
+        <h3 class="feature-title">4 Live Filters</h3>
+        <p class="feature-desc">Filter all 7 charts simultaneously by price range, bedroom count, renovation status, and year built for instant market segment analysis.</p>
+        <a href="{{ url_for('dashboard') }}" class="feature-link" id="feat-filters-link">Try Filters →</a>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon" style="background:hsla(38,95%,58%,0.15);color:var(--clr-gold);">📡</div>
+        <h3 class="feature-title">REST API</h3>
+        <p class="feature-desc">JSON API endpoints at <code>/api/data</code> and <code>/api/kpis</code> serve all pre-aggregated chart data for external integrations.</p>
+        <a href="/api/kpis" class="feature-link" id="feat-api-link">View API →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── DATASET VARIABLES ── -->
+<section class="section-sm" aria-label="Dataset variables">
+  <div class="container">
+    <div class="animate-fade-up">
+      <span class="section-badge">📋 Dataset Variables</span>
+      <h2 class="section-title">King County Housing <span class="highlight">Data Fields</span></h2>
+      <p class="section-subtitle">21,588 residential properties. All fields used to derive our 7 calculated metrics.</p>
+    </div>
+    <div class="vars-grid animate-fade-up animate-fade-up-2">
+      <div class="var-pill"><span class="var-icon">💲</span><div><div class="var-name">price</div><div class="var-type">Target Variable</div></div></div>
+      <div class="var-pill"><span class="var-icon">🛏</span><div><div class="var-name">bedrooms</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🚿</span><div><div class="var-name">bathrooms</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">📐</span><div><div class="var-name">sqft_living</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🏗</span><div><div class="var-name">floors</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🏚</span><div><div class="var-name">yr_built</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🔨</span><div><div class="var-name">yr_renovated</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🌊</span><div><div class="var-name">waterfront</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">⭐</span><div><div class="var-name">grade</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">🔍</span><div><div class="var-name">condition</div><div class="var-type">Feature</div></div></div>
+      <div class="var-pill"><span class="var-icon">📅</span><div><div class="var-name">date</div><div class="var-type">Temporal</div></div></div>
+      <div class="var-pill"><span class="var-icon">📍</span><div><div class="var-name">zipcode / lat / long</div><div class="var-type">Geographic</div></div></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // Fetch data for hero mini chart
+  try {
+    const res  = await fetch('/api/data');
+    const data = await res.json();
+    const reno = data.charts.price_by_renovation;
+
+    Plotly.newPlot('heroMiniChart', [{
+      type: 'bar',
+      x: reno.labels,
+      y: reno.avg_price,
+      marker: {
+        color: reno.labels.map(l =>
+          l === 'Renovated'
+            ? 'hsla(212,95%,58%,0.9)'
+            : 'hsla(252,85%,68%,0.7)'
+        ),
+        line: { width: 0 }
+      },
+      text: reno.avg_price.map(v => '$' + (v/1000).toFixed(0) + 'K'),
+      textposition: 'auto',
+      textfont: { color: '#fff', size: 11, family: 'Outfit' },
+      hovertemplate: '<b>%{x}</b><br>Avg Price: $%{y:,.0f}<extra></extra>',
+    }], {
+      margin: { t: 5, b: 30, l: 5, r: 5 },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { color: '#94a3b8', family: 'Inter', size: 10 },
+      xaxis: { showgrid: false, zeroline: false },
+      yaxis: { showgrid: false, zeroline: false, showticklabels: false },
+      showlegend: false,
+    }, { responsive: true, displayModeBar: false });
+  } catch(e) { console.warn('Hero chart error:', e); }
+});
+</script>
+{% endblock %}
