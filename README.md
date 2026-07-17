@@ -10,7 +10,7 @@ The complete project documentation is available in the house sales documentation
 The dataset avaiable in the Transformed_Housing_Data2 folder.
 # Final Project Report
 
-The final project report is available in housing_sales folder.
+The final project report is available in house sales documentation folder.
 # Tableau Dashboard 1
 
 https://public.tableau.com/views/Book1project_17832625208470/Dashboard1?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
